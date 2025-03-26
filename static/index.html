@@ -1,0 +1,605 @@
+<html>
+<head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: black;
+            text-align: center;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .top-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .barchart {
+            width: 46%;
+            border: 2px solid black;
+            padding: 15px;
+            border-style: double;
+        }
+        .chart-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .bar-button {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .button {
+            padding: 5px 10px;
+            color:black;
+            background: white;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .button.top-green:hover {
+            background-color: whitesmoke;
+            color: black;
+        }
+        .button.bottom-red:hover {
+            background-color: whitesmoke;
+            color: black;
+        }
+        .bottom-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            border: 1px solid black;
+        }
+        .scatterplot {
+            width: 60%;
+            padding: 15px;
+        }
+        .candy-list {
+            width: 40%;
+            padding: 15px;
+            border-radius: 2px;
+            border: 1px solid whitesmoke;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .searchbar {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid black;
+            border-radius: 2px;
+        }
+        .candy-item {
+            padding: 10px;
+            border-bottom: 1px solid wheat;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .rank {
+            font-weight: bold;
+            color: black;
+            padding-left: 10px;
+            min-width: 60px;
+        }
+        .winpercent {
+            min-width: 80px;
+            text-align: right;
+            color: black;
+        }
+        .tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid wheat;
+            padding: 12px;
+            pointer-events: none;
+            font-size: 12px;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-button{
+            padding: 7px;
+            background-color: white;
+            border: 1px solid black;
+            color:black; 
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .filter-button:hover {
+            background-color: whitesmoke;
+        }
+        .filter-button.active {
+            background-color: #00A693;
+            color: white;
+            border-color: black;
+        }
+        .column-headers {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 2px solid black;
+            margin-bottom: 5px;
+        }
+        .bar-value {
+            font-size: 12px;
+            text-anchor: middle;
+            font-weight: bold;
+        }
+        .axis-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Halloween Candy Rankings</div>
+        <div class="subtitle">Ever wonder what candy to buy for Halloween? Don't want to get your house egged by children for
+            giving out bad candy? Through a survey where people chose candy types against each other in 1 on 1 battles, take a look at the results
+            . Look through the winners and the losers to inform your next Halloween shopping list!</div>
+        
+        <div class="top-container">
+            <div class="barchart" id="ranking-chart">
+                <div class="chart-title">Top 5 Ranked Candies</div>
+                <div class="bar-button">
+                    <button class="button top-green" id="toggle-ranking">Show Bottom 5 Ranked</button>
+                </div>
+                <div id="ranking-bars"></div>
+            </div>
+            
+            <div class="barchart" id="price-chart">
+                <div class="chart-title">Top 5 Most Expensive Candies</div>
+                <div class="bar-button">
+                    <button class="button bottom-red" id="toggle-price">Show Top 5 Least Expensive</button>
+                </div>
+                <div id="price-bars"></div>
+            </div>
+        </div>
+        
+        <div class="bottom-container">
+            <div class="candy-list">
+                <div class="chart-title">Halloween Candy Rankings</div>
+                <div class="filters">
+                    <button class="filter-button active" data-category="all">All Candies</button>
+                    <button class="filter-button" data-category="cheap-popular">Cheap & Popular</button>
+                    <button class="filter-button" data-category="top10">Top 10 Overall</button>
+                    <button class="filter-button" data-category="cheap-decent">Lowest Price with Decent Rank</button>
+                    <button class="filter-button" data-category="bad-expensive">Bad and Expensive</button>
+                </div>
+                <input type="text" class="searchbar" id="candy-search" placeholder="Search">
+                <div class="column-headers">
+                    <span>Rank</span>
+                    <span>Candy</span>
+                    <span>Win %</span>
+                </div>
+                <div id="candy-ranking-list"></div>
+            </div>
+            <div class="scatterplot">
+                <div class="chart-title">Candy Popularity vs. Price</div>
+                <div id="scatter-plot"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tooltip" style="opacity: 0;"></div>
+
+    <script>
+        let candyData;
+        let currentRankingView = 'top';
+        let currentPriceView = 'most';
+        let currentFilterCategory = "all";
+
+        d3.csv("candy-data.csv").then(data => {
+            candyData = data.map(d => {
+                return {
+                    competitorname: d.competitorname,
+                    pricepercent: +d.pricepercent,
+                    winpercent: +d.winpercent
+                };
+            });
+            
+            candyData.sort((a, b) => b.winpercent - a.winpercent);
+            
+            updateRankingChart();
+            updatePriceChart();
+            createScatterplot();
+            createCandyList();
+            makeFilters();
+            
+            d3.select("#toggle-ranking").on("click", function() {
+                currentRankingView = currentRankingView === 'top' ? 'bottom' : 'top';
+                const btnText = currentRankingView === 'top' ? 'Show Bottom 5 Ranked' : 'Show Top 5 Ranked';
+                d3.select(this).text(btnText);
+                
+                d3.select(this)
+                    .classed("top-green", currentRankingView === 'top')
+                    .classed("bottom-red", currentRankingView === 'bottom');
+                
+                updateRankingChart();
+            });
+            
+            d3.select("#toggle-price").on("click", function() {
+                currentPriceView = currentPriceView === 'most' ? 'least' : 'most';
+                const btnText = currentPriceView === 'most' ? 'Show Top 5 Least Expensive' : 'Show Top 5 Most Expensive';
+                d3.select(this).text(btnText);
+                
+                d3.select(this)
+                    .classed("top-green", currentPriceView === 'least')
+                    .classed("bottom-red", currentPriceView === 'most');
+                
+                updatePriceChart();
+            });
+            
+            d3.select("#candy-search").on("input", function() {
+                const searchTerm = this.value.toLowerCase();
+                filterCandyList(searchTerm);
+            });
+        });
+
+        function calculateMedianPrice(data) {
+            const prices = data.map(d => d.pricepercent).sort((a, b) => a - b);
+            const middle = Math.floor(prices.length / 2);
+            return prices.length % 2 === 0 ? 
+                (prices[middle - 1] + prices[middle]) / 2 : 
+                prices[middle];
+        }
+
+        function filterByCategory(category) {
+            let filteredData = [...candyData];
+            const medianPrice = calculateMedianPrice(candyData);
+            
+            switch(category) {
+                case 'cheap-popular':
+                    filteredData = filteredData.filter(d => 
+                        d.winpercent > 70 && d.pricepercent < 0.50
+                    );
+                    filteredData.sort((a, b) => b.winpercent - a.winpercent);
+                    break;
+                    
+                case 'top10':
+                    filteredData.sort((a, b) => b.winpercent - a.winpercent);
+                    filteredData = filteredData.slice(0, 10);
+                    break;
+                    
+                case 'cheap-decent':
+                    filteredData = filteredData.filter(d => 
+                        d.winpercent >= 50 && d.pricepercent <= medianPrice
+                    );
+                    filteredData.sort((a, b) => {
+                        if (a.pricepercent !== b.pricepercent) {
+                            return a.pricepercent - b.pricepercent;
+                        }
+                        return b.winpercent - a.winpercent;
+                    });
+                    break;
+                    
+                case 'bad-expensive':
+                    filteredData = filteredData.filter(d => 
+                        d.winpercent <= 30 && d.pricepercent > 0.50
+                    );
+                    filteredData.sort((a, b) => a.winpercent - b.winpercent);
+                    break;
+                    
+                default:
+                    filteredData.sort((a, b) => b.winpercent - a.winpercent);
+            }
+            
+            return filteredData;
+        }
+
+        function makeCategoryFilters() {
+            d3.selectAll(".filter-button")
+                .on("click", function() {
+                    d3.selectAll(".filter-button").classed("active", false);
+                    d3.select(this).classed("active", true);
+                    currentFilterCategory = this.getAttribute("data-category");
+                    createCandyList();
+                });
+        }
+
+        function updateRankingChart() {
+            const container = d3.select("#ranking-bars");
+            container.selectAll("*").remove();
+            
+            const margin = {top: 20, right: 20, bottom: 70, left: 60};
+            const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            let sortedData;
+            let title;
+            
+            if (currentRankingView === 'top') {
+                sortedData = [...candyData].sort((a, b) => b.winpercent - a.winpercent).slice(0, 5);
+                title = "Top 5 Ranked Candies";
+            } else {
+                sortedData = [...candyData].sort((a, b) => a.winpercent - b.winpercent).slice(0, 5);
+                title = "Bottom 5 Ranked Candies";
+            }
+            
+            d3.select("#ranking-chart .chart-title").text(title);
+            
+            const xScale = d3.scaleBand()
+                .domain(sortedData.map(d => d.competitorname))
+                .range([0, width])
+                .padding(0.2);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([height, 0]);
+            
+            svg.selectAll(".bar")
+                .data(sortedData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.competitorname))
+                .attr("y", d => yScale(d.winpercent))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d.winpercent))
+                .attr("fill", currentRankingView === 'top' ? "#00A693" : "coral");
+            
+            svg.selectAll(".bar-value")
+                .data(sortedData)
+                .enter()
+                .append("text")
+                .attr("class", "bar-value")
+                .attr("x", d => xScale(d.competitorname) + xScale.bandwidth() / 2)
+                .attr("y", d => yScale(d.winpercent) - 5)
+                .attr("text-anchor", "middle")
+                .text(d => d.winpercent.toFixed(1) + "%");
+            
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale))
+                .selectAll("text")
+                .style("text-anchor", "middle")
+                .attr("dy", "1em");
+            
+            svg.append("text")
+                .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 10})`)
+                .style("text-anchor", "middle")
+                .attr("class", "axis-label")
+                .text("Candy");
+            
+            svg.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .attr("class", "axis-label")
+                .text("Win Percentage");
+        }
+        
+        function updatePriceChart() {
+            const container = d3.select("#price-bars");
+            container.selectAll("*").remove();
+            
+            const margin = {top: 20, right: 20, bottom: 70, left: 60};
+            const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            let sortedData;
+            let title;
+            
+            if (currentPriceView === 'most') {
+                sortedData = [...candyData].sort((a, b) => b.pricepercent - a.pricepercent).slice(0, 5);
+                title = "Top 5 Most Expensive Candies";
+            } else {
+                sortedData = [...candyData].sort((a, b) => a.pricepercent - b.pricepercent).slice(0, 5);
+                title = "Top 5 Least Expensive Candies";
+            }
+            
+            d3.select("#price-chart .chart-title").text(title);
+            
+            const xScale = d3.scaleBand()
+                .domain(sortedData.map(d => d.competitorname))
+                .range([0, width])
+                .padding(0.2);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([height, 0]);
+            
+            svg.selectAll(".bar")
+                .data(sortedData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.competitorname))
+                .attr("y", d => yScale(d.pricepercent))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d.pricepercent))
+                .attr("fill", currentPriceView === 'least' ? "#4CAF50" : "#FF5722");
+            
+            svg.selectAll(".bar-value")
+                .data(sortedData)
+                .enter()
+                .append("text")
+                .attr("class", "bar-value")
+                .attr("x", d => xScale(d.competitorname) + xScale.bandwidth() / 2)
+                .attr("y", d => yScale(d.pricepercent) - 5)
+                .attr("text-anchor", "middle")
+                .text(d => d.pricepercent.toFixed(3));
+            
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale))
+                .selectAll("text")
+                .style("text-anchor", "middle")
+                .attr("dy", "1em");
+            
+            svg.append("text")
+                .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 10})`)
+                .style("text-anchor", "middle")
+                .attr("class", "axis-label")
+                .text("Candy Name");
+            
+            svg.append("g")
+                .call(d3.axisLeft(yScale).tickFormat(d3.format(".2f")));
+            
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .attr("class", "axis-label")
+                .text("Price Percentile");
+        }
+        
+        function createScatterplot() {
+            const container = d3.select("#scatter-plot");
+            container.selectAll("*").remove();
+            
+            const margin = {top: 20, right: 20, bottom: 50, left: 60};
+            const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const xScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, width]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([height, 0]);
+            
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+            
+            svg.append("g")
+                .call(d3.axisLeft(yScale).tickFormat(d3.format(".2f")));
+            
+            svg.append("text")
+                .attr("transform", `translate(${width / 2}, ${height + margin.top + 20})`)
+                .style("text-anchor", "middle")
+                .text("Win Percentage");
+            
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Price Percentile (Higher = More Expensive)");
+            
+            const tooltip = d3.select(".tooltip");
+            
+            svg.selectAll(".dot")
+                .data(candyData)
+                .enter()
+                .append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => xScale(d.winpercent))
+                .attr("cy", d => yScale(d.pricepercent))
+                .attr("r", 6)
+                .attr("fill", d => {
+                    const rank = candyData.findIndex(c => c.competitorname === d.competitorname) + 1;
+                    if (rank <= 10) return "#00A693";
+                    if (rank >= candyData.length - 9) return "coral";
+                    return "cyan";
+                })
+                .on("mouseover", function(event, d) {
+                    const rank = candyData.findIndex(c => c.competitorname === d.competitorname) + 1;
+                    tooltip.style("opacity", 1)
+                        .html(`<strong>${d.competitorname}</strong><br>
+                               Rank: ${rank}<br>
+                               Win %: ${d.winpercent.toFixed(1)}<br>
+                               Price %: ${d.pricepercent.toFixed(2)}`)
+                        .style("left", `${event.pageX + 20}px`)
+                        .style("top", `${event.pageY - 35}px`);
+                })
+                .on("mouseout", function() {
+                    tooltip.style("opacity", 0);
+                });
+        }
+        
+        function createCandyList() {
+            const container = d3.select("#candy-ranking-list");
+            container.selectAll("*").remove();
+            
+            const filteredData = filterByCategory(currentFilterCategory);
+            
+            filteredData.forEach((d, i) => {
+                const rank = candyData.findIndex(c => c.competitorname === d.competitorname) + 1;
+                const candyId = d.competitorname.replace(/\s+/g, '-');
+                
+                const item = container.append("div")
+                    .attr("class", "candy-item")
+                    .attr("id", `candy-${candyId}`)
+                    .html(`
+                        <span class="rank">${rank}</span>
+                        <span>${d.competitorname}</span>
+                        <span class="winpercent">${d.winpercent.toFixed(1)}%</span>
+                    `);
+                
+                item.datum(d);
+            });
+        }
+        
+        function filterCandyList(searchTerm) {
+            const container = d3.select("#candy-ranking-list");
+            const allItems = container.selectAll(".candy-item");
+            
+            if (searchTerm === "") {
+                allItems.style("display", "flex");
+                return;
+            }
+            
+            allItems.style("display", function() {
+                const candyName = d3.select(this).select("span:not(.rank):not(.winpercent)").text().toLowerCase();
+                return candyName.includes(searchTerm) ? "flex" : "none";
+            });
+        }
+    </script>
+</body>
+</html>
