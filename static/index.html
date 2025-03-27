@@ -530,7 +530,7 @@
                 .attr("x", 0 - (height / 2))
                 .attr("dy", "1em")
                 .style("text-anchor", "middle")
-                .text("Price Percentile (Higher = More Expensive)");
+                .text("Price Percentile");
             
             const tooltip = d3.select(".tooltip");
             
@@ -541,7 +541,7 @@
                 .attr("class", "dot")
                 .attr("cx", d => xScale(d.winpercent))
                 .attr("cy", d => yScale(d.pricepercent))
-                .attr("r", 6)
+                .attr("r", 4)
                 .attr("fill", d => {
                     const rank = candyData.findIndex(c => c.competitorname === d.competitorname) + 1;
                     if (rank <= 10) return "#00A693";
