@@ -162,8 +162,8 @@
     <div class="container">
         <div class="title">Halloween Candy Rankings</div>
         <div class="subtitle">Ever wonder what candy to buy for Halloween? Don't want to get your house egged by children for
-            giving out bad candy? Through a survey where people chose candy types against each other in 1 on 1 battles, take a look at the results
-            . Look through the winners and the losers to inform your next Halloween shopping list!</div>
+            giving out bad candy? Through a survey where people chose candy types against each other in 1 on 1 battles, take a look at the results. 
+            Look through the winners and the losers to inform your next Halloween shopping list!</div>
         
         <div class="top-container">
             <div class="barchart" id="ranking-chart">
@@ -235,8 +235,8 @@
             
             d3.select("#toggle-ranking").on("click", function() {
                 currentRankingView = currentRankingView === 'top' ? 'bottom' : 'top';
-                const btnText = currentRankingView === 'top' ? 'Show Bottom 5 Ranked' : 'Show Top 5 Ranked';
-                d3.select(this).text(btnText);
+                const buttonText = currentRankingView === 'top' ? 'Show Bottom 5 Ranked' : 'Show Top 5 Ranked';
+                d3.select(this).text(buttonText);
                 
                 d3.select(this)
                     .classed("top-green", currentRankingView === 'top')
@@ -247,8 +247,8 @@
             
             d3.select("#toggle-price").on("click", function() {
                 currentPriceView = currentPriceView === 'most' ? 'least' : 'most';
-                const btnText = currentPriceView === 'most' ? 'Show Top 5 Least Expensive' : 'Show Top 5 Most Expensive';
-                d3.select(this).text(btnText);
+                const buttonText = currentPriceView === 'most' ? 'Show Top 5 Least Expensive' : 'Show Top 5 Most Expensive';
+                d3.select(this).text(buttonText);
                 
                 d3.select(this)
                     .classed("top-green", currentPriceView === 'least')
@@ -314,7 +314,7 @@
             return filteredData;
         }
 
-        function makeCategoryFilters() {
+        function makeFilters() {
             d3.selectAll(".filter-button")
                 .on("click", function() {
                     d3.selectAll(".filter-button").classed("active", false);
